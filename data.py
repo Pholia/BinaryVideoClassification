@@ -25,7 +25,7 @@ def load_clip(clip_path):
 
 class DataSet:
 
-    def __init__(self, num_frame = 20, frame_shape = (50, 50, 3)):
+    def __init__(self, num_frame = 20, frame_shape = (120, 120, 3)):
         self.num_frame = num_frame
         self.frame_shape = frame_shape
 
