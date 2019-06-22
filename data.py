@@ -6,10 +6,10 @@ import cv2
 
 from keras.utils import to_categorical
 
-def norm(clip):
-    clip -= np.mean(clip)
-    clip /= np.max(clip)
-    return clip
+def norm(image_sequence):
+    image_sequence -= np.mean(image_sequence)
+    image_sequence /= np.max(image_sequence)
+    return image_sequence
 
 def load_clip(clip_path):
     cap = cv2.VideoCapture(clip_path)
