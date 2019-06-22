@@ -42,6 +42,9 @@ class DataSet:
             self.data[class_name]['test'] = os.listdir('data/' + class_name + '/test')
         
         self.create_label()
+    
+    def size(self, op_type):
+        return len(self.data['positive'][op_type] + self.data['negative'][op_type])
 
     # Helper func
     def create_label(self):

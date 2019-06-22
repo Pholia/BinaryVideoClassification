@@ -10,7 +10,8 @@ class Model:
     def __init__(self, model_type, input_shape = (20, 120, 120 ,3)):
         self.input_shape = input_shape
 
-        if model_type == 'lrcn': self.model = self.lrcn()
+        if model_type == 'lrcn': 
+            self.model = self.lrcn()
         
         optimizer = Adam(lr=1e-5, decay=1e-6)
         self.model.compile(loss='categorical_crossentropy', optimizer = optimizer, metrics = ['accuracy'])
@@ -58,4 +59,3 @@ class Model:
         model.add(Dense(2, activation='softmax'))
 
         return model
-
