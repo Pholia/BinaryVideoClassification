@@ -1,4 +1,7 @@
-# BinaryVideoClassificationTrainingScript
-This is a repo for binary video classification training script using Keras, based on another repo, I will add reference and complete the repo in a few days.
+# Binary　Video　Classification
+
+I'll write this readme after implementation I promise
+
+ヘンタイフシンシャ！デス！
 
 最近うつ病になったpoi
