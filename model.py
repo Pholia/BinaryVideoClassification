@@ -1,4 +1,4 @@
-
+from keras import backend as K
 from keras.models import Model, Sequential, load_model
 from keras.optimizers import Adam
 
@@ -6,6 +6,23 @@ from keras.layers import Dense, Flatten, Dropout, ZeroPadding3D, BatchNormalizat
 from keras.layers.wrappers import TimeDistributed
 from keras.layers.recurrent import LSTM
 from keras.layers.convolutional import Conv2D, MaxPooling3D, Conv3D, MaxPooling2D
+
+def f1(y_true, y_pred):
+    def recall(y_true, y_pred):
+        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        possible_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+        recall = true_positives / (possible_positives + K.epsilon())
+        return recall
+
+    def precision(y_true, y_pred):
+        true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+        predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+        precision = true_positives / (predicted_positives + K.epsilon())
+        return precision
+    
+    precision = precision(y_true, y_pred)
+    recall = recall(y_true, y_pred)
+    return 2*((precision*recall)/(precision+recall+K.epsilon()))
 
 class ACModel:
 
@@ -17,7 +34,7 @@ class ACModel:
         if model_type == 'parallel_lrcn': 
             self.model = self.parallel_lrcn()
         
-        self.model.compile(loss='categorical_crossentropy', optimizer = Adam(lr=1e-5, decay=1e-6), metrics = ['accuracy'])
+        self.model.compile(loss='categorical_crossentropy', optimizer = Adam(lr=1e-5, decay=1e-6), metrics = ['accuracy', f1])
         
         print(self.model.summary())
     
