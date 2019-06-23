@@ -7,7 +7,7 @@ from keras.layers.wrappers import TimeDistributed
 from keras.layers.recurrent import LSTM
 from keras.layers.convolutional import Conv2D, MaxPooling3D, Conv3D, MaxPooling2D
 
-class Model:
+class ACModel:
 
     def __init__(self, model_type, input_shape = (20, 120, 120 ,3)):
         self.input_shape = input_shape
@@ -30,7 +30,7 @@ class Model:
 
         merged = Concatenate()([or_model.output, fn_model.output])
         merged = Dropout(0.5)(merged)
-        merged = Dense(512, activation='relu')(merged)
+        merged = Dense(512, activation = 'relu')(merged)
         merged = Dropout(0.5)(merged)
         merged = (Dense(2, activation = 'softmax'))(merged)
 
@@ -72,7 +72,7 @@ class Model:
 
         model.add(Dropout(0.5))
         model.add(LSTM(512, return_sequences = False, dropout = 0.5))
-        model.add(Dense(1024, activation = 'relu'), name = 'parallel_dense_output')
+        model.add(Dense(1024, activation = 'relu', name = 'parallel_dense_output'))
         
         # model.add(Dropout(0.5))
         # model.add(Dense(512, activation='relu'))

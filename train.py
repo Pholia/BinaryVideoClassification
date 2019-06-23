@@ -1,4 +1,4 @@
-from model import Model
+from model import ACModel
 from data import DataSet
 from keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStopping, Callback
 
@@ -13,7 +13,7 @@ sequence_length = 20
 frame_shape = (120, 120, 3)
 
 def train(model_type, batch_size, sequence_length, frame_shape):
-    model = Model(model_type, input_shape = (20, 120, 120, 3))
+    model = ACModel(model_type, input_shape = (20, 120, 120, 3))
     data = DataSet(sequence_length, frame_shape)
 
     checkpoint = ModelCheckpoint(filepath = os.path.join('checkpoints', (model_type + '-.{epoch:03d}-{val_loss:.3f}.hdf5'), verbose = 1, save_best_only = True))
