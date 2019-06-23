@@ -19,8 +19,12 @@ def train(model_type, batch_size, sequence_length, frame_shape):
     checkpoint = ModelCheckpoint(filepath = os.path.join('checkpoints', (model_type + '-.{epoch:03d}-{val_loss:.3f}.hdf5'), verbose = 1, save_best_only = True))
     tensorBoard = TensorBoard(log_dir = os.path.join('checkpoints', 'logs', model_type))
 
-    tri_generator = data.generator('train', 'frame', batch_size)
-    val_generator = data.generator('test', 'frame', batch_size)
+    if 'parallel' not in model_type:
+        tri_generator = data.generator('train', 'fn', batch_size)
+        val_generator = data.generator('test', 'fn', batch_size)
+    else:
+        tri_generator = data.parallel_generator('train', batch_size)
+        val_generator = data.parallel_generator('test', batch_size)
 
     model.model.fit_generator(generator = tri_generator, 
                               steps_per_epoch = data.size('train') // batch_size, 
@@ -28,6 +32,6 @@ def train(model_type, batch_size, sequence_length, frame_shape):
                               verbose = 1,
                               callbacks = [tensorBoard, checkpoint],
                               validation_data = val_generator, 
-                              validation_steps = 40, 
+                              validation_steps = 32, 
                               workers = 1)
 
