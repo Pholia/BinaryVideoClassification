@@ -1,4 +1,4 @@
-# Binary Video Classification
+# Binary Video Classification with FlowNet
 
 I'll write this readme after implementation I promise
 
