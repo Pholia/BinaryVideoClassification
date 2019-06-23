@@ -11,14 +11,14 @@ def norm(image_sequence):
     image_sequence /= np.max(image_sequence)
     return image_sequence
 
-def load_clip(clip_path):
+def load_clip(clip_path, frame_shape):
     cap = cv2.VideoCapture(clip_path)
     frames = []
     while (1):
         ret, frame = cap.read()
         if not ret:
             break
-        frames.append(frame)
+        frames.append(cv2.resize(frame, (frame_shape[1], frame_shape[0])))
             
     cap.release()
     return frames
@@ -65,15 +65,15 @@ class DataSet:
         return x
     
     def build_image_sequence(self, sample_path):
-        clip = load_clip(sample_path)
+        clip = load_clip(sample_path, self.frame_shape)
         if len(clip) != self.num_frame:
             raise Exception
         
         return [self.process_frame(frame) for frame in clip]
     
     def build_parallel_image_sequence(self, or_sample_path, fn_sample_path):
-        or_clip = load_clip(or_sample_path)
-        fn_clip = load_clip(fn_sample_path)
+        or_clip = load_clip(or_sample_path, self.frame_shape)
+        fn_clip = load_clip(fn_sample_path, self.frame_shape)
 
         if (len(or_clip) != self.num_frame) or (len(fn_clip) != self.num_frame - 1):
             raise Exception
