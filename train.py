@@ -16,8 +16,8 @@ def train(model_type, batch_size, sequence_length, frame_shape):
     model = ACModel(model_type, input_shape = (20, 120, 120, 3))
     data = DataSet(sequence_length, frame_shape)
 
-    checkpoint = ModelCheckpoint(filepath = os.path.join('checkpoints', (model_type + '-.{epoch:03d}-{val_loss:.3f}.hdf5')), verbose = 1, save_best_only = True)
-    tensorBoard = TensorBoard(log_dir = os.path.join('checkpoints', 'logs', model_type))
+    checkpoint = ModelCheckpoint(filepath = os.path.join('CheckPoints', (model_type + '-.{epoch:03d}-{val_loss:.3f}.hdf5')), verbose = 1, save_best_only = True)
+    tensorBoard = TensorBoard(log_dir = os.path.join('CheckPoints', 'logs', model_type))
 
     if 'parallel' not in model_type:
         tri_generator = data.generator('train', 'fn', batch_size)
