@@ -46,7 +46,7 @@ class DataSet:
         self.create_label()
     
     def size(self, op_type):
-        return len(self.data['positive'][op_type] + self.data['negative'][op_type])
+        return len(self.data['positive']['or_' + op_type] + self.data['negative']['or_' + op_type])
 
     # Helper func
     def create_label(self):
@@ -75,7 +75,7 @@ class DataSet:
         or_clip = load_clip(or_sample_path, self.frame_shape)
         fn_clip = load_clip(fn_sample_path, self.frame_shape)
 
-        if (len(or_clip) != self.num_frame) or (len(fn_clip) != self.num_frame - 1):
+        if (len(or_clip) != self.num_frame) or (len(fn_clip) != self.num_frame):
             raise Exception
         
         return [self.process_frame(frame) for frame in or_clip], [self.process_frame(frame) for frame in fn_clip]
@@ -88,16 +88,24 @@ class DataSet:
         data_arr = np.array(self.data['positive'][data_type + '_' + op_type] + self.data['negative'][data_type + '_' + op_type])
         self.print_data(op_type, data_arr)
 
+        np.random.shuffle(data_arr)
+        batch_index = 0
         while(1):
-            np.random.shuffle(data_arr)
+            if batch_index == data_arr.shape[0]:
+                batch_index = 0
+            
+            current_batch = data_arr[batch_index:batch_index + batch_size]
+
             x, y = [], []
 
-            for _ in range(batch_size):
-                sample_path = random.choice(data_arr)
+            for index in range(batch_size):
+                sample_path = current_batch[index]
                 image_sequence = self.build_image_sequence(sample_path)
             
                 x.append(norm(image_sequence))
                 y.append(self.choose_label(sample_path))
+            
+            batch_index += batch_size
         
             yield np.array(x), np.array(y)
     
@@ -105,12 +113,18 @@ class DataSet:
         or_data_arr = np.array(self.data['positive']['or_' + op_type] + self.data['negative']['or_' + op_type])
         self.print_data(op_type, or_data_arr)
 
+        np.random.shuffle(or_data_arr)
+        batch_index = 0
         while(1):
-            or_data_arr = np.random.shuffle(or_data_arr)
+            if batch_index == or_data_arr.shape[0]:
+                batch_index = 0
+            
+            current_batch = or_data_arr[batch_index:batch_index + batch_size]
+
             x1, x2, y = [], [], []
 
-            for _ in range(batch_size):
-                or_sample_path = random.choice(or_data_arr)
+            for index in range(batch_size):
+                or_sample_path = current_batch[index]
                 fn_sample_path = or_sample_path.replace('or', 'fn')
 
                 or_image_sequence, fn_image_sequence = self.build_parallel_image_sequence(or_sample_path, fn_sample_path)
@@ -119,4 +133,5 @@ class DataSet:
                 x2.append(norm(fn_image_sequence))
                 y.append(self.choose_label(or_sample_path))
             
+            batch_index += batch_size
             yield [np.array(x1), np.array(x2)], np.array(y)

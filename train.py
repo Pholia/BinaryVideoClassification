@@ -6,7 +6,7 @@ import os
 
 model_type = 'lrcn'
 
-batch_size = 32
+batch_size = 1
 epochs = 50
 
 sequence_length = 20
@@ -16,7 +16,7 @@ def train(model_type, batch_size, sequence_length, frame_shape):
     model = ACModel(model_type, input_shape = (20, 120, 120, 3))
     data = DataSet(sequence_length, frame_shape)
 
-    checkpoint = ModelCheckpoint(filepath = os.path.join('checkpoints', (model_type + '-.{epoch:03d}-{val_loss:.3f}.hdf5'), verbose = 1, save_best_only = True))
+    checkpoint = ModelCheckpoint(filepath = os.path.join('checkpoints', (model_type + '-.{epoch:03d}-{val_loss:.3f}.hdf5')), verbose = 1, save_best_only = True)
     tensorBoard = TensorBoard(log_dir = os.path.join('checkpoints', 'logs', model_type))
 
     if 'parallel' not in model_type:
@@ -32,6 +32,8 @@ def train(model_type, batch_size, sequence_length, frame_shape):
                               verbose = 1,
                               callbacks = [tensorBoard, checkpoint],
                               validation_data = val_generator, 
-                              validation_steps = 32, 
+                              validation_steps = 4, 
                               workers = 1)
 
+
+train(model_type, batch_size, sequence_length, frame_shape)

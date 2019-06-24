@@ -40,10 +40,11 @@ class ACModel:
     
     def parallel_lrcn(self):
         or_base_model = self.lrcn()
-        fn_base_model = self.lrcn(parallel_fn_input = True)
+        fn_base_model = self.lrcn2()
+        # fn_base_model = self.lrcn(parallel_fn_input = True)
 
         or_model = Model(inputs = or_base_model.input, outputs = or_base_model.get_layer(name = 'parallel_dense_output').output)
-        fn_model = Model(inputs = fn_base_model.input, outputs = fn_base_model.get_layer(name = 'parallel_dense_output').output)
+        fn_model = Model(inputs = fn_base_model.input, outputs = fn_base_model.get_layer(name = 'parallel_dense_output2').output)
 
         merged = Concatenate()([or_model.output, fn_model.output])
         merged = Dropout(0.5)(merged)
@@ -89,7 +90,51 @@ class ACModel:
 
         model.add(Dropout(0.5))
         model.add(LSTM(512, return_sequences = False, dropout = 0.5))
-        model.add(Dense(1024, activation = 'relu', name = 'parallel_dense_output'))
+        model.add(Dense(512, activation = 'relu', name = 'parallel_dense_output'))
+        
+        # model.add(Dropout(0.5))
+        # model.add(Dense(512, activation='relu'))
+        
+        model.add(Dropout(0.5))
+        model.add(Dense(2, activation='softmax'))
+
+        return model
+
+    def lrcn2(self, parallel_fn_input = False):
+        model = Sequential()
+        if not parallel_fn_input:
+            model.add(TimeDistributed(Conv2D(32, (7, 7), strides=(2,2), activation='relu', padding='same'), input_shape = self.input_shape))
+        else:
+            input_shape = self.input_shape
+            input_shape[0] -= 1
+            model.add(TimeDistributed(Conv2D(32, (7, 7), strides=(2,2), activation='relu', padding='same'), input_shape = input_shape))
+        
+        # model.add(TimeDistributed(Conv2D(32, (3, 3), kernel_initializer="he_normal", activation='relu')))
+        model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
+
+        model.add(TimeDistributed(Conv2D(64, (3, 3), padding='same', activation='relu')))
+        # model.add(TimeDistributed(Conv2D(64, (3, 3), padding='same', activation='relu')))
+        model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
+
+        model.add(TimeDistributed(Conv2D(128, (3, 3), padding='same', activation='relu')))
+        # model.add(TimeDistributed(Conv2D(128, (3, 3), padding='same', activation='relu')))
+        model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
+
+        model.add(TimeDistributed(Conv2D(256, (3, 3), padding='same', activation='relu')))
+        # model.add(TimeDistributed(Conv2D(256, (3, 3),
+        # padding='same', activation='relu')))
+        model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
+
+        model.add(TimeDistributed(Conv2D(512, (3, 3), padding='same', activation='relu')))
+        # model.add(TimeDistributed(Conv2D(256, (3, 3),
+        # padding='same', activation='relu')))
+        # model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
+        
+        model.add(TimeDistributed(Flatten()))
+
+        model.add(Dropout(0.5))
+        model.add(LSTM(512, return_sequences = False, dropout = 0.5))
+        model.add(Dense(512, activation = 'relu', name = 'parallel_dense_output2'))
         
         # model.add(Dropout(0.5))
         # model.add(Dense(512, activation='relu'))
